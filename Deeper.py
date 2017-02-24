@@ -2,21 +2,17 @@ import pygame, random, datetime, pickle, time
 from pygame.color import THECOLORS
 blockImages = ["stone.png", "dirt.png", "coalore.png", "ironore.png", "goldore.png", "clay.png", "bricks.png", "mud.png", "grass.png", "lamp.png", "legacypc.png", "craftshelf.png"]
 itemImages = ["Pickaxe.png"]
-Background = pygame.image.load("Background.png")
+Background = pygame.image.load("Background.PNG")
 Logo = pygame.image.load("DeeperIcon.jpg")
-ToolbarTile = pygame.image.load("Toolbar Tile.png")
+ToolbarTile = pygame.image.load("ToolbarTile.png")
 CheckboxChecked = pygame.image.load("CheckboxChecked.png")
 toolbarFile = []
 cavePos = []
 crafting = False
 
-#Deeper - Version 0.2 Alpha:
-
+#Deeper - CODENAME INFINITY Build 3002:
 #Release Notes:
-# +Added Crafting, so you can craft artificial blocks.
-# +Changed inventory system up a bit.
-# +Added the LegacyPC, a Computer that can create custom structures easily, and easily copyable to different locations.
-# +Added a Save World System, so you can save your most recent world on your Hard Drive.
+# -Added Help Center
 
 class block(pygame.sprite.Sprite):
     def __init__(self, position, ID):
@@ -277,7 +273,7 @@ class button(pygame.sprite.Sprite):
     def __init__(self, text, location, basecolor, excess_trim):
         pygame.sprite.Sprite.__init__(self)
         self.text = str(text)
-        self.font = pygame.font.Font(None, 30)
+        self.font = pygame.font.Font("PixelFJVerdana12pt.TTF", 10)
         if excess_trim == None:
             self.excess_trim = int(0)
         else:
@@ -364,7 +360,7 @@ class in_game_menu(pygame.sprite.Sprite):
         global window, blockImages, chosenBlock, toolbar 
         window.blit(self.dimSurf, [0, 0])
         window.blit(self.image, [self.rect.centerx, self.rect.centery])
-        MenuFont = pygame.font.Font(None, 20)
+        MenuFont = pygame.font.Font("PixelFJVerdana12pt.TTF", 5)
         toolbar(125, 125)
         Achievements(125, 200)
     def displayCraft(self):
@@ -373,7 +369,7 @@ class in_game_menu(pygame.sprite.Sprite):
         window.blit(self.image, [self.rect.centerx, self.rect.centery])
         window.blit(self.upButton, [125, 150])
         window.blit(self.downButton, [125, 170])
-        MenuFont = pygame.font.Font(None, 20)
+        MenuFont = pygame.font.Font("PixelFJVerdana12pt.TTF", 5)
         toolbar(125, 125)
         craftClose.checkmouse()
         craftClose.display()
@@ -408,7 +404,7 @@ class pcScreen(pygame.sprite.Sprite):
     def display(self, screen):
         global MouseTriggerZone, clicked, pcMenu, toolbar, blockImages, chosenBlock, Toolbar, buildXgenerate, allBlocks
         self.screen = str(screen)
-        Font = pygame.font.Font(None, 30)
+        Font = pygame.font.Font("PixelFJVerdana12pt.TTF", 5)
         MonitorText = Font.render("LegacyPC", 1, (232, 216, 138))
         window.blit(self.dimSurf, [0, 0])
         window.blit(self.image2, [self.rect.centerx - 20, self.rect.centery - 20])
@@ -509,17 +505,43 @@ class pcScreen(pygame.sprite.Sprite):
         return isclicked
         
 def menu():
-    global window, menuButton, menuButton2, Logo
+    global window, Logo
     background()
-    window.blit(Logo, [100, 60])
-    textFont = pygame.font.Font(None, 50)
-    textRender = textFont.render("Deeper", 1, (0, 0, 0))
-    window.blit(textRender, [175, 75])
+    window.blit(Logo, [150, 60])
+    textFont = pygame.font.Font("PixelFJVerdana12pt.TTF", 15)
+    textRender = textFont.render("Deeper", 1, (255, 255, 255))
+    window.blit(textRender, [225, 75])
     menuButton.display()
     menuButton.checkmouse()
     exitButton.display()
     exitButton.checkmouse()
+    helpButton.display()
+    helpButton.checkmouse()
     pygame.display.flip()
+
+def help_menu():
+    global window
+    background()
+    textFont = pygame.font.Font("PixelFJVerdana12pt.TTF", 15)
+    smallFont = pygame.font.Font("PixelFJVerdana12pt.TTF", 7)
+    helpText = textFont.render("Deeper Help Center", 1, (255, 255, 255))
+    text1 = smallFont.render("Deeper is a 2D Sandbox Game about mining, building, & exploring.", 1, (255, 255, 255))
+    text2 = smallFont.render("Press A & D to move, and press space to jump.", 1, (255, 255, 255))
+    text3 = smallFont.render("To mine blocks, click on a block in range.", 1, (255, 255, 255))
+    text4 = smallFont.render("To place blocks, click on an empty space in range.", 1, (255, 255, 255))
+    text5 = smallFont.render("To access your toolbar & achievements, press E.", 1, (255, 255, 255))
+    text6 = smallFont.render("To change the items, go to your toolbar, and click on the item.", 1, (255, 255, 255))
+    text7 = smallFont.render("To interact with blocks, right-click on the block.", 1, (255, 255, 255))
+    window.blit(helpText, [100, 25])
+    window.blit(text1, [25, 75])
+    window.blit(text2, [25, 90])
+    window.blit(text3, [25, 105])
+    window.blit(text4, [25, 120])
+    window.blit(text5, [25, 135])
+    window.blit(text6, [25, 150])
+    window.blit(text7, [25, 165])
+    backButton.display()
+    backButton.checkmouse()
 
 def new_world():
     background()
@@ -531,6 +553,8 @@ def new_world():
     loadButton.display()
     minersButton.checkmouse()
     minersButton.display()
+    backButton.display()
+    backButton.checkmouse()
     pygame.display.flip()
 
 def display_world():
@@ -670,7 +694,7 @@ def generate_world(Basic):
 
 def toolbar(x, y):
     global chosenBlock
-    ItemFont = pygame.font.Font(None, 15)
+    ItemFont = pygame.font.Font("PixelFJVerdana12pt.TTF", 5)
     if not Toolbar[0] == None:
         item1 = ItemFont.render(str(Toolbar[0].quantity), 1, (255, 255, 255))
     else:
@@ -684,7 +708,7 @@ def toolbar(x, y):
     else:
         item3 = None
     if not Toolbar[3] == None:
-        item4 = ItemFont.render(str(Toolbar[3].quantity), 1, (255, 255, 255))
+       item4 = ItemFont.render(str(Toolbar[3].quantity), 1, (255, 255, 255))
     else:
         item4 = None
     if not Toolbar[4] == None:
@@ -738,7 +762,7 @@ def Achievements(x, y):
         window.blit(ToolbarTile, [x, y])
     else:
         window.blit(CheckboxChecked, [x, y])
-    achievementFont = pygame.font.Font(None, 20)
+    achievementFont = pygame.font.Font("PixelFJVerdana12pt.TTF", 5)
     achieve1 = achievementFont.render("Beginning - Start a World", 1, (0, 0, 0))
     window.blit(achieve1, [x + 20, y])
     if world_type == False:
@@ -758,7 +782,7 @@ def Achievements(x, y):
     window.blit(achieve3, [x + 20, y + 50])
     
 pygame.init()
-version = "0.2"
+version = "Build 3002"
 window = pygame.display.set_mode([480, 480])
 window.fill([128, 128, 128])
 pygame.display.set_caption("Deeper " + version)
@@ -773,13 +797,15 @@ lighting = pygame.sprite.Group()
 blocklighting = pygame.sprite.Group()
 mouseGrp.add(Mouse)
 gamemenu = in_game_menu()
-menuButton = button("Start", [200, 200], "gray", None)
-exitButton = button("Exit", [205, 250], "red", None)
-goButton = button("Go!", [200, 200], "green", 5)
-basicButton = button("Basic World", [125, 275], "gray", 10)
-loadButton = button("Load World", [125, 325], "gray", 15)
-minersButton = button("Miner's World", [125, 375], "gray", 5)
-buildXgenerate = button("Generate", [LegacyPC.rect.centerx + 10, LegacyPC.rect.centery + 150], "gray", 15)
+menuButton = button("Start", [200, 200], "gray", -5)
+helpButton = button("Help", [202, 250], "gray", 0)
+exitButton = button("Exit", [205, 300], "red", -5)
+backButton = button("Back", [15, 15], "red", 3)
+goButton = button("Go!", [200, 200], "green", 0)
+basicButton = button("Basic World", [125, 275], "gray", -10)
+loadButton = button("Load World", [125, 325], "gray", 0)
+minersButton = button("Miner's World", [125, 375], "gray", -15)
+buildXgenerate = button("Generate", [LegacyPC.rect.centerx + 10, LegacyPC.rect.centery + 150], "gray", 5)
 craftClose = button("X", [gamemenu.rect.centerx + 215, gamemenu.rect.centery + 10], "red", 4)
 craftButton = button("Craft", [160, 155], "gray", 15)
 running = True
@@ -804,11 +830,12 @@ mouseevent = 0
 blocksMined = 0
 pygame.key.set_repeat(1, 50)
 
-print "You're running Deeper v" + version + " Alpha!"
+print "You're running Deeper " + version + " Alpha!"
 print "We are in Alpha Testing!"
 print "Due to that, some feautures may not exist/work properly."
 
 while running:
+    pygame.mouse.set_visible(False)
     for i in pygame.event.get():
         if i.type == pygame.QUIT:
             running = False
@@ -822,12 +849,19 @@ while running:
                 if screen == 'menu':
                     menuButton.checkmouse()
                     menuButton.click()
+                    helpButton.checkmouse()
+                    helpButton.click()
                     exitButton.checkmouse()
                     exitButton.click()
                     if menuButton.clicked:
                         screen = 'new_world'
+                        menuButton.clicked = False
+                    elif helpButton.clicked:
+                        screen = "help"
+                        helpButton.clicked = False
                     elif exitButton.clicked:
                         running = False
+                        exitButton.clicked = False
                 elif screen == 'new_world':
                     goButton.checkmouse()
                     goButton.click()
@@ -837,6 +871,8 @@ while running:
                     loadButton.click()
                     minersButton.checkmouse()
                     minersButton.click()
+                    backButton.checkmouse()
+                    backButton.click()        
                     if goButton.clicked:
                         screen = 'generating'
                     if basicButton.clicked:
@@ -848,6 +884,15 @@ while running:
                     if minersButton.clicked:
                         world_type = False
                         minersButton.clicked = False
+                    if backButton.clicked:
+                        screen = 'menu'
+                        backButton.clicked = False
+                elif screen == 'help':
+                    backButton.checkmouse()
+                    backButton.click()
+                    if backButton.clicked:
+                        screen = 'menu'
+                        backButton.clicked = False
                 elif screen == 'in_game':
                     if crafting:
                         craftClose.checkmouse()
@@ -904,24 +949,29 @@ while running:
                 if i.key == pygame.K_SPACE:
                     if screen == "in_game":
                         player.update("jump")
-            elif GameMenu or pcOn:
-                if i.key == pygame.K_1:
-                    chosenBlock = 0
-                elif i.key == pygame.K_2:
-                    chosenBlock = 1
-                elif i.key == pygame.K_3:
-                    chosenBlock = 2
-                elif i.key == pygame.K_4:
-                    chosenBlock = 3
-                elif i.key == pygame.K_5:
-                    chosenBlock = 4
+            if i.key == pygame.K_1:
+                chosenBlock = 0
+            elif i.key == pygame.K_2:
+                chosenBlock = 1
+            elif i.key == pygame.K_3:
+                chosenBlock = 2
+            elif i.key == pygame.K_4:
+                chosenBlock = 3
+            elif i.key == pygame.K_5:
+                chosenBlock = 4
     if screen == 'menu':
         menu()
+        window.blit(pygame.image.load("cursor.png"), [Mouse.rect.centerx, Mouse.rect.centery])
+    elif screen == 'help':
+        help_menu()
+        window.blit(pygame.image.load("cursor.png"), [Mouse.rect.centerx, Mouse.rect.centery])
     elif screen == 'new_world':
         new_world()
+        window.blit(pygame.image.load("cursor.png"), [Mouse.rect.centerx, Mouse.rect.centery])
     elif screen == 'generating':
         Toolbar = toolbarOld
         generate_world(world_type)
+        window.blit(pygame.image.load("cursor.png"), [Mouse.rect.centerx, Mouse.rect.centery])
     elif screen == 'in_game':
         display_world()
         lighting.update()
@@ -936,6 +986,10 @@ while running:
             LegacyPC.display(pcMenu)
         elif crafting:
             gamemenu.displayCraft()
+        if not Toolbar[chosenBlock] == None and not crafting and not pcOn and not GameMenu:
+            window.blit(pygame.image.load(Toolbar[chosenBlock].image), [Mouse.rect.centerx, Mouse.rect.centery])
+        elif Toolbar[chosenBlock] == None or crafting or pcOn or GameMenu:
+            window.blit(pygame.image.load("cursor.png"), [Mouse.rect.centerx, Mouse.rect.centery])
     pygame.display.flip()
     playerMoveX = 0
     clicked = False
