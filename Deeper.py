@@ -10,9 +10,10 @@ toolbarFile = []
 cavePos = []
 crafting = False
 
-#Deeper - CODENAME INFINITY Build 3002:
+#Deeper - CODENAME INFINITY Build 3006:
 #Release Notes:
-# -Added Help Center
+# -Added Tutorial World
+# -Added Tutorial UI.
 
 class block(pygame.sprite.Sprite):
     def __init__(self, position, ID):
@@ -220,7 +221,7 @@ def loadToolbar():
 def dumpToolbar():
     global item, toolbarOld
     toolbarFile = open("toolbar.dat", "w")
-    items = [item(0, False, 1), item(11, True, 1), None, None, None]
+    items = [item(0, False, 1), item(10, True, 1), item(9, True, 400), None, None]
     toolbarOld = items
     pickle.dump(items, toolbarFile)
 
@@ -231,14 +232,24 @@ except:
 
 Toolbar = []
 worldLoaded = True
+tutorialAccess = True
 try:
     worldFile = open("world1.deep", "r")
 except:
     worldLoaded = False
 
+try:
+    tutorialFile = open("tutorial.deep", "r")
+except:
+    tutorialAccess = False
+
 if worldLoaded:
     worldData = pickle.load(worldFile)
     worldFile.close()
+
+if tutorialAccess:
+    tutorialData = pickle.load(tutorialFile)
+    tutorialFile.close()
         
 class LightingBlock(pygame.sprite.Sprite):
     def __init__(self, position):
@@ -553,6 +564,8 @@ def new_world():
     loadButton.display()
     minersButton.checkmouse()
     minersButton.display()
+    tutorialButton.checkmouse()
+    tutorialButton.display()
     backButton.display()
     backButton.checkmouse()
     pygame.display.flip()
@@ -561,6 +574,16 @@ def display_world():
     global world, window
     background()
     world.draw(window)
+
+def Tutorial():
+    global window, pygame
+    if tutorialIndex <= int(len(tutorial) - 1):
+        surface = pygame.surface.Surface((480, 50))
+        surface.fill([128, 128, 128])
+        font = pygame.font.Font("PixelFJVerdana12pt.TTF", 5)
+        text = font.render(tutorial[tutorialIndex], 1, (0, 0, 0))
+        window.blit(surface, [0, 430])
+        window.blit(text, [5, 450])
 
 def generate_world(Basic):
     Id = 0
@@ -573,6 +596,22 @@ def generate_world(Basic):
     playerSpawnX = random.randint(0, 47)
     if Basic == 'load':
         for i in worldData:
+            Block = i.transfer()
+            if Block.rect.centery == 5 and Block.rect.centerx == (playerSpawnX * 10) + 5:
+                player = Player([Block.rect.centerx - 2, Block.rect.centery - 5])
+                playerSpawned = True
+            else:
+                if Block.mined:
+                    minedBlocks.add(Block)
+                else:
+                    world.add(Block)
+            if Block.id == 9 and not Block.mined:
+                blocklighting.add(Block)
+            allBlocks.add(Block)
+            lightBlock = LightingBlock([Block.rect.centerx - 5, Block.rect.centery - 5])
+            lighting.add(lightBlock)
+    elif Basic == 'tutorial':
+        for i in tutorialData:
             Block = i.transfer()
             if Block.rect.centery == 5 and Block.rect.centerx == (playerSpawnX * 10) + 5:
                 player = Player([Block.rect.centerx - 2, Block.rect.centery - 5])
@@ -782,7 +821,7 @@ def Achievements(x, y):
     window.blit(achieve3, [x + 20, y + 50])
     
 pygame.init()
-version = "Build 3002"
+version = "Build 3006"
 window = pygame.display.set_mode([480, 480])
 window.fill([128, 128, 128])
 pygame.display.set_caption("Deeper " + version)
@@ -802,9 +841,12 @@ helpButton = button("Help", [202, 250], "gray", 0)
 exitButton = button("Exit", [205, 300], "red", -5)
 backButton = button("Back", [15, 15], "red", 3)
 goButton = button("Go!", [200, 200], "green", 0)
+nextTutorialButton = button("Next", [420, 445], "green", 0)
+doneTutorialButton = button("Done", [415, 445], "green", 5)
 basicButton = button("Basic World", [125, 275], "gray", -10)
 loadButton = button("Load World", [125, 325], "gray", 0)
 minersButton = button("Miner's World", [125, 375], "gray", -15)
+tutorialButton = button("Tutorial World", [125, 425], "gray", -20)
 buildXgenerate = button("Generate", [LegacyPC.rect.centerx + 10, LegacyPC.rect.centery + 150], "gray", 5)
 craftClose = button("X", [gamemenu.rect.centerx + 215, gamemenu.rect.centery + 10], "red", 4)
 craftButton = button("Craft", [160, 155], "gray", 15)
@@ -824,6 +866,8 @@ chosenBlock = 0
 playerWhere = 'bottom'
 achievements = [None, None, None]
 currentCraft = 0
+tutorialIndex = 0
+tutorial = ["Welcome to Deeper! Click Next to continue.", "Deeper is a game about exploring deeper, mining, and building.", "To start, try moving by pressing the A & D keys or arrow keys.", "See that? The little green guy moved! To make him jump, press the spacebar.", "Next, lets try mining. To mine a block, click it. It will be added to your inventory.", "To open your inventory, press E.", "When you are in your inventory, you can view your items, and achievements.", "In the top left corner are your items, to switch current items, just click it.", "You can also place blocks by clicking on any empty space.", "You can also interact wtih some blocks by right clicking them.", "That's about everything you need to know, you are about to exit the tutorial.", "If you have any questions, go to the help menu or contact @OrionDark7 on GitHub.", "Have fun!!!"]
 craftingRecipes = [craftingRecipe(item(10, True, 1), [item(9, True, 4), item(3, True, 5)]), craftingRecipe(item(9, True, 4), [item(2, True, 3), item(4, True, 3)]), craftingRecipe(item(6, True, 4), [item(5, True, 4)]), craftingRecipe(item(8, True, 4), [item(1, True, 4)])]
 toolbarFile = open("toolbar.dat", "w")
 mouseevent = 0
@@ -871,6 +915,8 @@ while running:
                     loadButton.click()
                     minersButton.checkmouse()
                     minersButton.click()
+                    tutorialButton.checkmouse()
+                    tutorialButton.click()
                     backButton.checkmouse()
                     backButton.click()        
                     if goButton.clicked:
@@ -884,6 +930,9 @@ while running:
                     if minersButton.clicked:
                         world_type = False
                         minersButton.clicked = False
+                    if tutorialButton.clicked:
+                        world_type = "tutorial"
+                        tutorialButton.clicked = False
                     if backButton.clicked:
                         screen = 'menu'
                         backButton.clicked = False
@@ -933,6 +982,17 @@ while running:
                     elif pcOn:
                         if LegacyPC.quitUIclicked():
                             pcOn = False
+                    if world_type == "tutorial":
+                            nextTutorialButton.checkmouse()
+                            nextTutorialButton.click()
+                            doneTutorialButton.checkmouse()
+                            doneTutorialButton.click()
+                            if nextTutorialButton.clicked:
+                                nextTutorialButton.clicked = False
+                                tutorialIndex += 1
+                            if doneTutorialButton.clicked:
+                                doneTutorialButton.clicked = False
+                                tutorialIndex += 1
             elif mouseevent[2] == 1:
                 world.update('interact')
         elif i.type == pygame.KEYDOWN:
@@ -986,6 +1046,12 @@ while running:
             LegacyPC.display(pcMenu)
         elif crafting:
             gamemenu.displayCraft()
+        if world_type == "tutorial":
+            Tutorial()
+            if tutorialIndex < int(len(tutorial) - 1):
+                nextTutorialButton.display()
+            elif tutorialIndex < len(tutorial):
+                doneTutorialButton.display()
         if not Toolbar[chosenBlock] == None and not crafting and not pcOn and not GameMenu:
             window.blit(pygame.image.load(Toolbar[chosenBlock].image), [Mouse.rect.centerx, Mouse.rect.centery])
         elif Toolbar[chosenBlock] == None or crafting or pcOn or GameMenu:
